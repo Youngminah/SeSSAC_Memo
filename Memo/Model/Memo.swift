@@ -6,16 +6,22 @@
 //
 
 import Foundation
+import RxDataSources
 
-struct Memo: Equatable {
+struct Memo: Equatable, IdentifiableType {
+    
     var title: String?
     var content: String
     var insertDate: Date
+    var identity: String
+    var isFixed: Bool
     
-    init(title: String?, content: String, insertDate: Date) {
+    init(title: String?, content: String, insertDate: Date, isFixed: Bool = false) {
         self.title = title
         self.content = content
         self.insertDate = insertDate
+        self.identity = "\(insertDate.timeIntervalSinceReferenceDate)"
+        self.isFixed = isFixed
     }
     
     init(original: Memo, updateTitle: String?, updateContent: String, updateDate: Date) {
@@ -23,5 +29,10 @@ struct Memo: Equatable {
         self.title = updateTitle
         self.content = updateContent
         self.insertDate = updateDate
+    }
+    
+    init(original: Memo, isFixed: Bool) {
+        self = original
+        self.isFixed = isFixed
     }
 }

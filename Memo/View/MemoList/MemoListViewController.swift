@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import RxDataSources
 
 class MemoListViewController: UIViewController{
 
@@ -15,6 +16,18 @@ class MemoListViewController: UIViewController{
 
     var viewModel = MemoViewModel()
     let disposeBag = DisposeBag()
+    
+    let dataSource: RxTableViewSectionedAnimatedDataSource<MemoSectionModel> = {
+        let ds = RxTableViewSectionedAnimatedDataSource<MemoSectionModel>(configureCell: { (dataSource, tableView, indexPath, memo) -> UITableViewCell in
+            let cell = tableView.dequeueReusableCell(withIdentifier: "MemoListCell", for: indexPath) as! MemoListCell
+            cell.setDate(data: memo)
+            return cell
+        }, titleForHeaderInSection: { dataSource, sectionIndex in
+            return dataSource[sectionIndex].model
+        })
+        ds.canEditRowAtIndexPath = { _, _ in return true }
+        return ds
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,15 +48,12 @@ class MemoListViewController: UIViewController{
     
     private func bind() {
         
+        self.tableView.rx.setDelegate(self)
+                    .disposed(by: disposeBag)
+        
         self.viewModel.memoList
-            .asDriver(onErrorJustReturn: [])
-            .drive(self.tableView.rx.items) { memo, row, data in
-                let index = IndexPath(row: row, section: 0)
-                let cell = memo.dequeueReusableCell(withIdentifier: "MemoListCell", for: index) as! MemoListCell
-                cell.setDate(data: data)
-                return cell
-            }
-            .disposed(by: self.disposeBag)
+            .bind(to: tableView.rx.items(dataSource:  self.dataSource))
+            .disposed(by: disposeBag)
         
         self.tableView.rx.modelSelected(Memo.self)
             .subscribe(onNext: {  [weak self] memo in
@@ -60,7 +70,6 @@ class MemoListViewController: UIViewController{
                 self.viewModel.delete(memo: $0)
             }
             .disposed(by: disposeBag)
-            
     }
     
     func setupSearchController() {
@@ -76,9 +85,29 @@ class MemoListViewController: UIViewController{
 
 extension MemoListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        // code
-        print("텍스트")
+        print("텍스트 입력됨")
     }
 }
 
+extension MemoListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath:IndexPath) -> UISwipeActionsConfiguration? {
+        var shareAction = UIContextualAction()
+        if indexPath.section == 0 {
+            shareAction = UIContextualAction(style: .normal,
+                                                 title:  nil ) { (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                print("고정해제")
+            }
+            shareAction.image = UIImage(systemName: "pin.slash.fill")
+        } else {
+            shareAction = UIContextualAction(style: .normal,
+                                                 title:  nil ) { (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                print("고정")
+            }
+            shareAction.image = UIImage(systemName: "pin.fill")
+        }
+        shareAction.backgroundColor = .orange
+        
+        return UISwipeActionsConfiguration(actions:[shareAction])
+    }
+}
 

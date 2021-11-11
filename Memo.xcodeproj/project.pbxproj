@@ -11,6 +11,11 @@
 		BB1FAFD9273C1767004CE742 /* OnBoarding.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB1FAFD8273C1767004CE742 /* OnBoarding.storyboard */; };
 		BB1FAFE3273C1985004CE742 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB1FAFE2273C1984004CE742 /* Main.storyboard */; };
 		BBAB1EAC273C1B5800780316 /* MemoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB1EAB273C1B5800780316 /* MemoViewModel.swift */; };
+		BBAB1EAF273D562B00780316 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = BBAB1EAE273D562B00780316 /* RxCocoa */; };
+		BBAB1EB1273D562B00780316 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = BBAB1EB0273D562B00780316 /* RxRelay */; };
+		BBAB1EB3273D562B00780316 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BBAB1EB2273D562B00780316 /* RxSwift */; };
+		BBAB1EB6273D569700780316 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = BBAB1EB5273D569700780316 /* RxDataSources */; };
+		BBAB1EB8273D5BC400780316 /* MemoStorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB1EB7273D5BC400780316 /* MemoStorageType.swift */; };
 		BBD9E279273A1DCF00EEB84E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E278273A1DCF00EEB84E /* AppDelegate.swift */; };
 		BBD9E27B273A1DCF00EEB84E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E27A273A1DCF00EEB84E /* SceneDelegate.swift */; };
 		BBD9E282273A1DD100EEB84E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBD9E281273A1DD100EEB84E /* Assets.xcassets */; };
@@ -20,8 +25,6 @@
 		BBD9E297273A2CD400EEB84E /* Compose.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBD9E296273A2CD400EEB84E /* Compose.storyboard */; };
 		BBD9E299273A481A00EEB84E /* MemoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E298273A481A00EEB84E /* MemoStorage.swift */; };
 		BBD9E2A0273A48C300EEB84E /* Memo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E29F273A48C300EEB84E /* Memo.swift */; };
-		BBD9E2A3273A493800EEB84E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = BBD9E2A2273A493800EEB84E /* RxCocoa */; };
-		BBD9E2A5273A493800EEB84E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BBD9E2A4273A493800EEB84E /* RxSwift */; };
 		BBD9E2F4273C15F800EEB84E /* MemoListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E2F3273C15F800EEB84E /* MemoListCell.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +33,7 @@
 		BB1FAFD8273C1767004CE742 /* OnBoarding.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = OnBoarding.storyboard; sourceTree = "<group>"; };
 		BB1FAFE2273C1984004CE742 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BBAB1EAB273C1B5800780316 /* MemoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoViewModel.swift; sourceTree = "<group>"; };
+		BBAB1EB7273D5BC400780316 /* MemoStorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoStorageType.swift; sourceTree = "<group>"; };
 		BBD9E275273A1DCF00EEB84E /* Memo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBD9E278273A1DCF00EEB84E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BBD9E27A273A1DCF00EEB84E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -49,8 +53,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BBD9E2A5273A493800EEB84E /* RxSwift in Frameworks */,
-				BBD9E2A3273A493800EEB84E /* RxCocoa in Frameworks */,
+				BBAB1EB3273D562B00780316 /* RxSwift in Frameworks */,
+				BBAB1EB6273D569700780316 /* RxDataSources in Frameworks */,
+				BBAB1EB1273D562B00780316 /* RxRelay in Frameworks */,
+				BBAB1EAF273D562B00780316 /* RxCocoa in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				BBD9E298273A481A00EEB84E /* MemoStorage.swift */,
+				BBAB1EB7273D5BC400780316 /* MemoStorageType.swift */,
 				BBD9E295273A202E00EEB84E /* Model */,
 				BBD9E293273A1FEF00EEB84E /* ViewModel */,
 				BBD9E294273A201C00EEB84E /* View */,
@@ -160,8 +167,10 @@
 			);
 			name = Memo;
 			packageProductDependencies = (
-				BBD9E2A2273A493800EEB84E /* RxCocoa */,
-				BBD9E2A4273A493800EEB84E /* RxSwift */,
+				BBAB1EAE273D562B00780316 /* RxCocoa */,
+				BBAB1EB0273D562B00780316 /* RxRelay */,
+				BBAB1EB2273D562B00780316 /* RxSwift */,
+				BBAB1EB5273D569700780316 /* RxDataSources */,
 			);
 			productName = Memo;
 			productReference = BBD9E275273A1DCF00EEB84E /* Memo.app */;
@@ -192,7 +201,8 @@
 			);
 			mainGroup = BBD9E26C273A1DCF00EEB84E;
 			packageReferences = (
-				BBD9E2A1273A493800EEB84E /* XCRemoteSwiftPackageReference "RxSwift" */,
+				BBAB1EAD273D562B00780316 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				BBAB1EB4273D569700780316 /* XCRemoteSwiftPackageReference "RxDataSources" */,
 			);
 			productRefGroup = BBD9E276273A1DCF00EEB84E /* Products */;
 			projectDirPath = "";
@@ -224,6 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBD9E2A0273A48C300EEB84E /* Memo.swift in Sources */,
+				BBAB1EB8273D5BC400780316 /* MemoStorageType.swift in Sources */,
 				BBD9E2F4273C15F800EEB84E /* MemoListCell.swift in Sources */,
 				BBD9E279273A1DCF00EEB84E /* AppDelegate.swift in Sources */,
 				BBAB1EAC273C1B5800780316 /* MemoViewModel.swift in Sources */,
@@ -447,7 +458,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		BBD9E2A1273A493800EEB84E /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+		BBAB1EAD273D562B00780316 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
 			requirement = {
@@ -455,18 +466,36 @@
 				kind = branch;
 			};
 		};
+		BBAB1EB4273D569700780316 /* XCRemoteSwiftPackageReference "RxDataSources" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxDataSources.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BBD9E2A2273A493800EEB84E /* RxCocoa */ = {
+		BBAB1EAE273D562B00780316 /* RxCocoa */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = BBD9E2A1273A493800EEB84E /* XCRemoteSwiftPackageReference "RxSwift" */;
+			package = BBAB1EAD273D562B00780316 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxCocoa;
 		};
-		BBD9E2A4273A493800EEB84E /* RxSwift */ = {
+		BBAB1EB0273D562B00780316 /* RxRelay */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = BBD9E2A1273A493800EEB84E /* XCRemoteSwiftPackageReference "RxSwift" */;
+			package = BBAB1EAD273D562B00780316 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		BBAB1EB2273D562B00780316 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BBAB1EAD273D562B00780316 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
+		};
+		BBAB1EB5273D569700780316 /* RxDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BBAB1EB4273D569700780316 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = RxDataSources;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
