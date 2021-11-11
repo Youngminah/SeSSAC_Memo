@@ -70,13 +70,11 @@ final class MemoViewModel: MemoStorageType {
         if let index = sectionFixedModel.items.firstIndex(where: {$0 == memo}){
             sectionFixedModel.items.remove(at: index)
         }
-        
         data.onNext([sectionFixedModel, sectionModel])
         return Observable.just(memo)
     }
     
     func updateFixToUnfix(at index: Int){
-//        let memo = sectionFixedModel.items[index]
         sectionFixedModel.items[index].updateIsFixed()
         let memo = sectionFixedModel.items[index]
         sectionFixedModel.items.remove(at: index)

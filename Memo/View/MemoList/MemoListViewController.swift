@@ -31,7 +31,6 @@ class MemoListViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         guard let vc = UIStoryboard(name: "OnBoarding", bundle: nil)
                 .instantiateViewController(withIdentifier: "OnBoardingViewController") as? OnBoardingViewController else { return }
         vc.modalPresentationStyle = .overFullScreen
@@ -53,6 +52,18 @@ class MemoListViewController: UIViewController{
         
         self.viewModel.memoList
             .bind(to: tableView.rx.items(dataSource:  self.dataSource))
+            .disposed(by: disposeBag)
+        
+        self.viewModel.memoList
+            .map { modelList -> String in
+                var count = 0
+                modelList.forEach {
+                    count += $0.items.count
+                }
+                return "\(count)".insertComma + "개의 메모"
+            }
+            .asObservable()
+            .bind(to: self.rx.title)
             .disposed(by: disposeBag)
         
         self.tableView.rx.modelSelected(Memo.self)

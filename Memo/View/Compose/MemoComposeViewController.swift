@@ -25,7 +25,7 @@ class MemoComposeViewController: UIViewController {
         let completed = UIBarButtonItem(title: "완료",
                                         style: .plain,
                                         target: self,
-                                        action: #selector(didTapShareButton))
+                                        action: #selector(didTapCompleteButton))
         let share = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"),
                                     style: .plain,
                                     target: self,
@@ -35,7 +35,9 @@ class MemoComposeViewController: UIViewController {
     }
     
     @objc private func didTapCompleteButton(){
-
+        self.dismiss(animated: true) {
+            print("완료됨")
+        }
     }
     
     @objc private func didTapShareButton(){
