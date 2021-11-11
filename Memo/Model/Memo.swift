@@ -20,7 +20,7 @@ struct Memo: Equatable, IdentifiableType {
         self.title = title
         self.content = content
         self.insertDate = insertDate
-        self.identity = "\(insertDate.timeIntervalSinceReferenceDate)"
+        self.identity = UUID().uuidString
         self.isFixed = isFixed
     }
     
@@ -34,5 +34,9 @@ struct Memo: Equatable, IdentifiableType {
     init(original: Memo, isFixed: Bool) {
         self = original
         self.isFixed = isFixed
+    }
+    
+    mutating func updateIsFixed() {
+        self.isFixed = !isFixed
     }
 }

@@ -92,21 +92,23 @@ extension MemoListViewController: UISearchResultsUpdating {
 extension MemoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath:IndexPath) -> UISwipeActionsConfiguration? {
         var shareAction = UIContextualAction()
+
         if indexPath.section == 0 {
             shareAction = UIContextualAction(style: .normal,
-                                                 title:  nil ) { (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
-                print("고정해제")
+                                                 title:  nil ) { [weak self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                print("고정해제 \(indexPath.section)")
+                self?.viewModel.updateFixToUnfix(at: indexPath.row)
             }
             shareAction.image = UIImage(systemName: "pin.slash.fill")
         } else {
             shareAction = UIContextualAction(style: .normal,
-                                                 title:  nil ) { (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
-                print("고정")
+                                                 title:  nil ) { [weak self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                print("고정 \(indexPath.section)")
+                self?.viewModel.updateUnfixToFix(at: indexPath.row)
             }
             shareAction.image = UIImage(systemName: "pin.fill")
         }
         shareAction.backgroundColor = .orange
-        
         return UISwipeActionsConfiguration(actions:[shareAction])
     }
 }
