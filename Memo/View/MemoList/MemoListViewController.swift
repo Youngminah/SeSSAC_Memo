@@ -13,7 +13,7 @@ class MemoListViewController: UIViewController{
 
     @IBOutlet weak var tableView: UITableView!
 
-    var viewModel = MemoViewModel(dataManager: MemoryStorage())
+    var viewModel = MemoViewModel()
     let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
@@ -35,7 +35,7 @@ class MemoListViewController: UIViewController{
     
     private func bind() {
         
-        self.viewModel.data
+        self.viewModel.memoList
             .asDriver(onErrorJustReturn: [])
             .drive(self.tableView.rx.items) { memo, row, data in
                 let index = IndexPath(row: row, section: 0)
@@ -45,23 +45,22 @@ class MemoListViewController: UIViewController{
             }
             .disposed(by: self.disposeBag)
         
-        self.tableView.rx
-            .itemSelected
-            .do(onNext: { [unowned self] indexPath in
-                self.tableView.deselectRow(at: indexPath, animated: false)
-            })
-            .flatMap { [unowned self] indexPath -> Observable<Memo> in
-                return self.viewModel.data.map {
-                    $0[indexPath.row]
-                }
-            }
-            .subscribe (onNext: { [weak self] memo in
+        self.tableView.rx.modelSelected(Memo.self)
+            .subscribe(onNext: {  [weak self] memo in
                 guard let vc = UIStoryboard(name: "Compose", bundle: nil)
                         .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
                 vc.memo = memo
                 self?.navigationController?.pushViewController(vc, animated: true)
-            })
+            }).disposed(by: self.disposeBag)
+                
+                
+        self.tableView.rx
+            .modelDeleted(Memo.self)
+            .subscribe {
+                self.viewModel.delete(memo: $0)
+            }
             .disposed(by: disposeBag)
+            
     }
     
     func setupSearchController() {
@@ -78,6 +77,7 @@ class MemoListViewController: UIViewController{
 extension MemoListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         // code
+        print("텍스트")
     }
 }
 
