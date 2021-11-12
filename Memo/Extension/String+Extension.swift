@@ -48,7 +48,6 @@ extension String {
     //제목과 내용 분리하기
     var pasringContectText: [String] {
         var array = self.components(separatedBy: "\n")
-        print(array)
         if array.count < 2 {
             return array
         }

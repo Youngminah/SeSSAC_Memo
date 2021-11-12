@@ -33,7 +33,7 @@ final class MemoViewModel: MemoStorageType {
     init() {
         let localRealm = try! Realm()
         print("Realm is located at:", localRealm.configuration.fileURL!)
-        tasks = localRealm.objects(UserMemo.self).sorted(byKeyPath: "insertDate")
+        tasks = localRealm.objects(UserMemo.self).sorted(byKeyPath: "insertDate", ascending: false)
         tasks.forEach {
             list.append(Memo(title: $0.title, content: $0.content, insertDate: $0.insertDate, isFixed: $0.isFixed))
         }

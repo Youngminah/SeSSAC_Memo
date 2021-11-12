@@ -27,18 +27,3 @@ class MemoListCell: UITableViewCell {
         dateLabel.text = Date.from(date: data.insertDate)
     }
 }
-
-extension Date {
-    static func from(date: Date) -> String {
-        let formatter = DateFormatter()
-        //한국 시간으로 표시
-        formatter.locale = Locale(identifier: "ko_kr")
-        formatter.timeZone = TimeZone(abbreviation: "KST")
-        //형태 변환
-        formatter.dateFormat = "yyyy년 MM월 dd일\na hh:mm"
-        formatter.amSymbol = "오전"
-        formatter.pmSymbol = "오후"
-        
-        return formatter.string(from: date)
-    }
-}

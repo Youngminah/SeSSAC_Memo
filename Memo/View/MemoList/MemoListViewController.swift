@@ -9,7 +9,6 @@ import UIKit
 import RxSwift
 import RxCocoa
 import RxDataSources
-import YMLogoAlert
 
 class MemoListViewController: UIViewController{
 
@@ -32,12 +31,16 @@ class MemoListViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        guard let vc = UIStoryboard(name: "OnBoarding", bundle: nil)
-                .instantiateViewController(withIdentifier: "OnBoardingViewController") as? OnBoardingViewController else { return }
-        vc.modalPresentationStyle = .overFullScreen
-        self.present(vc, animated: true, completion: nil)
         setupSearchController()
         bind()
+        
+        if !UserDefaults.standard.bool(forKey: "OnBoardingFlag") {
+            UserDefaults.standard.set(true, forKey: "OnBoardingFlag")
+            guard let vc = UIStoryboard(name: "OnBoarding", bundle: nil)
+                    .instantiateViewController(withIdentifier: "OnBoardingViewController") as? OnBoardingViewController else { return }
+            vc.modalPresentationStyle = .overFullScreen
+            self.present(vc, animated: true, completion: nil)
+        }
     }
     
     @IBAction func ComposeButtonTapped(_ sender: UIBarButtonItem) {
@@ -73,15 +76,24 @@ class MemoListViewController: UIViewController{
                 guard let vc = UIStoryboard(name: "Compose", bundle: nil)
                         .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
                 vc.memo = memo
+                vc.updateflag = true
                 self?.navigationController?.pushViewController(vc, animated: true)
             }).disposed(by: self.disposeBag)
                 
                 
         self.tableView.rx
             .itemDeleted
-            .subscribe {
-                self.viewModel.delete(at: $0)
-            }
+            .subscribe (onNext: { [weak self] indexPath in
+                let indexPath = indexPath
+                let alert = UIAlertController(title: "삭제 하시겠습니까?", message: "복구는 불가능합니다.", preferredStyle: UIAlertController.Style.alert)
+                let cancelAction = UIAlertAction(title: "취소", style: .default)
+                let confirmAction = UIAlertAction(title: "확인", style: .destructive) {  _ in
+                    self?.viewModel.delete(at: indexPath)
+                }
+                alert.addAction(cancelAction)
+                alert.addAction(confirmAction)
+                self?.present(alert, animated: true, completion: nil)
+            })
             .disposed(by: disposeBag)
     }
     
@@ -123,7 +135,7 @@ extension MemoListViewController: UITableViewDelegate {
                 print("고정 \(indexPath.section)")
                 if self.viewModel.countFixedMemo > 4 {
                     let alert = UIAlertController(title: "에러", message: "최대 5개까지만 고정 가능합니다.", preferredStyle: UIAlertController.Style.alert)
-                    let defaultAction = UIAlertAction(title: "확인", style: .destructive)
+                    let defaultAction = UIAlertAction(title: "확인", style: .default)
                     alert.addAction(defaultAction)
                     present(alert,animated: true, completion: nil)
                     return
