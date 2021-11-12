@@ -12,10 +12,11 @@ class MemoComposeViewController: UIViewController {
 
     @IBOutlet weak var textView: UITextView!
     
-    var viewModel = MemoViewModel()
-    var updateflag: Bool = false
-    var memo: Memo?
-    var indexPath: IndexPath?
+    var delegate: MemoDelegate?
+    private var updateflag: Bool = false
+    private var memo: Memo?
+    private var indexPath: IndexPath?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +26,7 @@ class MemoComposeViewController: UIViewController {
         } else {
             textView.becomeFirstResponder()
         }
+
         setNavigationBar()
     }
     
@@ -47,6 +49,12 @@ class MemoComposeViewController: UIViewController {
                                     action: #selector(didTapShareButton))
 
         self.navigationItem.rightBarButtonItems = [completed, share]
+    }
+    
+    func updateValue(updateflag: Bool, memo: Memo, indexPath: IndexPath) {
+        self.updateflag = updateflag
+        self.memo = memo
+        self.indexPath = indexPath
     }
     
     @objc private func didTapCompleteButton(){
@@ -78,15 +86,15 @@ class MemoComposeViewController: UIViewController {
         let memoArray = text.pasringContectText
         if memoArray.count == 1{
             if let indexPath = indexPath {
-                viewModel.update(title: nil, content: memoArray[0], date: Date(), at: indexPath)
+                delegate?.updateMemo(title: nil, content: memoArray[0], date: Date(), at: indexPath)
             } else {
-                viewModel.createMemo(title: nil, content: memoArray[0], date: Date())
+                delegate?.createMemo(title: nil, content: memoArray[0], date: Date())
             }
         } else {
             if let indexPath = indexPath {
-                viewModel.update(title: memoArray[0], content: memoArray[1], date: Date(), at: indexPath)
+                delegate?.updateMemo(title: memoArray[0], content: memoArray[1], date: Date(), at: indexPath)
             } else {
-                viewModel.createMemo(title: memoArray[0], content: memoArray[1], date: Date())
+                delegate?.createMemo(title: memoArray[0], content: memoArray[1], date: Date())
             }
         }
     }

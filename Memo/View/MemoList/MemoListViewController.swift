@@ -10,6 +10,11 @@ import RxSwift
 import RxCocoa
 import RxDataSources
 
+protocol MemoDelegate: AnyObject {
+    func createMemo(title: String?, content: String, date: Date)
+    func updateMemo(title: String?, content: String, date: Date, at index: IndexPath)
+}
+
 class MemoListViewController: UIViewController{
 
     @IBOutlet weak var tableView: UITableView!
@@ -46,6 +51,7 @@ class MemoListViewController: UIViewController{
     @IBAction func ComposeButtonTapped(_ sender: UIBarButtonItem) {
         guard let vc = UIStoryboard(name: "Compose", bundle: nil)
                 .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
+        vc.delegate = self
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -71,14 +77,24 @@ class MemoListViewController: UIViewController{
             .bind(to: self.rx.title)
             .disposed(by: disposeBag)
         
-        self.tableView.rx.modelSelected(Memo.self)
-            .subscribe(onNext: {  [weak self] memo in
+        Observable.zip(tableView.rx.modelSelected(Memo.self), tableView.rx.itemSelected)
+            .subscribe(onNext: { [unowned self] ( memo, indexPath) in
                 guard let vc = UIStoryboard(name: "Compose", bundle: nil)
                         .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
-                vc.memo = memo
-                vc.updateflag = true
-                self?.navigationController?.pushViewController(vc, animated: true)
-            }).disposed(by: self.disposeBag)
+                vc.delegate = self
+                vc.updateValue(updateflag: true, memo: memo, indexPath: indexPath)
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
+                
+//        self.tableView.rx.itemSelected
+//            .subscribe(onNext: {  [weak self] indexPath in
+//                guard let vc = UIStoryboard(name: "Compose", bundle: nil)
+//                        .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
+//                vc.delegate = self
+//                vc.updateValue(updateflag: true, memo: self?.viewModel., indexPath: indexPath)
+//                self?.navigationController?.pushViewController(vc, animated: true)
+//            }).disposed(by: self.disposeBag)
                 
                 
         self.tableView.rx
@@ -108,13 +124,13 @@ class MemoListViewController: UIViewController{
     }
 }
 
-extension MemoListViewController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        guard let text = searchController.searchBar.text, text != "" else {
-            self.viewModel.cancelSearchBarText()
-            return
-        }
-        self.viewModel.didUpdateSearchBarText(text: text)
+extension MemoListViewController: MemoDelegate {
+    func createMemo(title: String?, content: String, date: Date) {
+        self.viewModel.createMemo(title: title, content: content, date: date)
+    }
+    
+    func updateMemo(title: String?, content: String, date: Date, at index: IndexPath) {
+        self.viewModel.update(title: title, content: content, date: date, at: index)
     }
 }
 
@@ -149,3 +165,12 @@ extension MemoListViewController: UITableViewDelegate {
     }
 }
 
+extension MemoListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text, text != "" else {
+            self.viewModel.cancelSearchBarText()
+            return
+        }
+        self.viewModel.didUpdateSearchBarText(text: text)
+    }
+}
