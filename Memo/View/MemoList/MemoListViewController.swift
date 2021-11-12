@@ -12,7 +12,7 @@ import RxDataSources
 
 protocol MemoDelegate: AnyObject {
     func createMemo(title: String?, content: String, date: Date)
-    func updateMemo(title: String?, content: String, date: Date, at index: IndexPath)
+    func updateMemo(title: String?, content: String, date: Date, originalDate: Date)
 }
 
 class MemoListViewController: UIViewController{
@@ -49,6 +49,11 @@ class MemoListViewController: UIViewController{
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        searchText = nil
+    }
+    
     @IBAction func ComposeButtonTapped(_ sender: UIBarButtonItem) {
         guard let vc = UIStoryboard(name: "Compose", bundle: nil)
                 .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
@@ -62,6 +67,7 @@ class MemoListViewController: UIViewController{
                     .disposed(by: disposeBag)
         
         self.viewModel.memoList
+            .debounce(RxTimeInterval.microseconds(10), scheduler: MainScheduler.instance)
             .distinctUntilChanged()
             .bind(to: tableView.rx.items(dataSource:  self.dataSource))
             .disposed(by: disposeBag)
@@ -83,20 +89,10 @@ class MemoListViewController: UIViewController{
                 guard let vc = UIStoryboard(name: "Compose", bundle: nil)
                         .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
                 vc.delegate = self
-                vc.updateValue(updateflag: true, memo: memo, indexPath: indexPath)
+                vc.updateValue(updateflag: true, memo: memo, originalDate: memo.insertDate)
                 self.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)
-                
-//        self.tableView.rx.itemSelected
-//            .subscribe(onNext: {  [weak self] indexPath in
-//                guard let vc = UIStoryboard(name: "Compose", bundle: nil)
-//                        .instantiateViewController(withIdentifier: "MemoComposeViewController") as? MemoComposeViewController else { return }
-//                vc.delegate = self
-//                vc.updateValue(updateflag: true, memo: self?.viewModel., indexPath: indexPath)
-//                self?.navigationController?.pushViewController(vc, animated: true)
-//            }).disposed(by: self.disposeBag)
-                
                 
         self.tableView.rx
             .itemDeleted
@@ -119,6 +115,7 @@ class MemoListViewController: UIViewController{
         searchController.searchBar.placeholder = "검색"
         searchController.hidesNavigationBarDuringPresentation = false
         searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
         self.navigationItem.searchController = searchController
         self.navigationItem.title = "0개의 메모"
         self.navigationItem.hidesSearchBarWhenScrolling = false
@@ -130,35 +127,59 @@ extension MemoListViewController: MemoDelegate {
         self.viewModel.createMemo(title: title, content: content, date: date)
     }
     
-    func updateMemo(title: String?, content: String, date: Date, at index: IndexPath) {
-        self.viewModel.update(title: title, content: content, date: date, at: index)
+    func updateMemo(title: String?, content: String, date: Date, originalDate: Date) {
+        self.viewModel.update(title: title, content: content, date: date, originalDate: originalDate)
+    }
+}
+
+extension MemoListViewController: UISearchBarDelegate {
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchText = nil
     }
 }
 
 extension MemoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath:IndexPath) -> UISwipeActionsConfiguration? {
         var shareAction = UIContextualAction()
-
-        if indexPath.section == 0 {
-            shareAction = UIContextualAction(style: .normal,
+        guard let text = searchText else {
+            if indexPath.section == 0 {
+                shareAction = UIContextualAction(style: .normal,
                                                  title:  nil ) { [unowned self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
-                print("고정해제 \(indexPath.section)")
-                self.viewModel.updateFixToUnfix(at: indexPath.row)
+                    let memo = self.viewModel.fixedMemoList[indexPath.row]
+                    self.viewModel.updatePin(date: memo.insertDate)
+                }
+                shareAction.image = UIImage(systemName: "pin.slash.fill")
+            } else {
+                shareAction = UIContextualAction(style: .normal,
+                                                 title:  nil ) { [unowned self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                    if self.viewModel.countFixedMemo > 4 {
+                        let alert = UIAlertController(title: "에러", message: "최대 5개까지만 고정 가능합니다.", preferredStyle: UIAlertController.Style.alert)
+                        let defaultAction = UIAlertAction(title: "확인", style: .default)
+                        alert.addAction(defaultAction)
+                        present(alert,animated: true, completion: nil)
+                        return
+                    }
+                    let memo = self.viewModel.unFixedMemoList[indexPath.row]
+                    self.viewModel.updatePin(date: memo.insertDate)
+                }
+                shareAction.image = UIImage(systemName: "pin.fill")
             }
+            shareAction.backgroundColor = .orange
+            return UISwipeActionsConfiguration(actions:[shareAction])
+        }
+        let memo = self.viewModel.memos
+            .filter {
+                $0.title?.contains(text) ?? false || $0.content.contains(text)
+            }.sorted(by: {
+                $0.insertDate > $1.insertDate
+            })[indexPath.row]
+        shareAction = UIContextualAction(style: .normal,
+                                         title:  nil ) { [unowned self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+            self.viewModel.updatePin(date: memo.insertDate)
+        }
+        if memo.isFixed {
             shareAction.image = UIImage(systemName: "pin.slash.fill")
         } else {
-            shareAction = UIContextualAction(style: .normal,
-                                                 title:  nil ) { [unowned self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
-                print("고정 \(indexPath.section)")
-                if self.viewModel.countFixedMemo > 4 {
-                    let alert = UIAlertController(title: "에러", message: "최대 5개까지만 고정 가능합니다.", preferredStyle: UIAlertController.Style.alert)
-                    let defaultAction = UIAlertAction(title: "확인", style: .default)
-                    alert.addAction(defaultAction)
-                    present(alert,animated: true, completion: nil)
-                    return
-                }
-                self.viewModel.updateUnfixToFix(at: indexPath.row)
-            }
             shareAction.image = UIImage(systemName: "pin.fill")
         }
         shareAction.backgroundColor = .orange

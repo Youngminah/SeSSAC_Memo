@@ -35,9 +35,10 @@ class MemoListCell: UITableViewCell {
             
             dateLabel.text = Date.from(date: data.insertDate)
             return
+        } else {
+            titleLabel.text = data.title
+            contentLabel.text = data.content
+            dateLabel.text = Date.from(date: data.insertDate)
         }
-        titleLabel.text = data.title
-        contentLabel.text = data.content
-        dateLabel.text = Date.from(date: data.insertDate)
     }
 }

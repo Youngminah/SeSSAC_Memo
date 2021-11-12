@@ -16,7 +16,6 @@ typealias MemoSectionModel = AnimatableSectionModel<String, Memo>
 final class MemoViewModel: MemoStorageType {
     
     private var list = [Memo]()
-    
     // input
     let save = PublishRelay<Void>()
     
@@ -43,6 +42,18 @@ final class MemoViewModel: MemoStorageType {
         return data
     }
     
+    var memos: [Memo] {
+        return list
+    }
+    
+    var fixedMemoList: [Memo] {
+        return list.filter { $0.isFixed == true }
+    }
+    
+    var unFixedMemoList: [Memo] {
+        return list.filter { $0.isFixed == false }
+    }
+    
     var countFixedMemo: Int {
         return list.filter { $0.isFixed == true }.count
     }
@@ -61,13 +72,8 @@ final class MemoViewModel: MemoStorageType {
     }
     
     @discardableResult
-    func update(title: String?, content: String, date: Date, at indexPath: IndexPath) -> Observable<UserMemo> {
-        var realmMemo = UserMemo()
-        if indexPath.section == 0 {
-            realmMemo = tasks.where { $0.isFixed == true }[indexPath.row]
-        } else {
-            realmMemo = tasks.where { $0.isFixed == false }[indexPath.row]
-        }
+    func update(title: String?, content: String, date: Date, originalDate : Date) -> Observable<UserMemo> {
+        let realmMemo = tasks.where { $0.insertDate == originalDate }.first!
         let realm = try! Realm()
         try! realm.write {
             realmMemo.title = title
@@ -96,21 +102,11 @@ final class MemoViewModel: MemoStorageType {
         return Observable.just(realmMemo)
     }
     
-    func updateFixToUnfix(at index: Int){
-        let realmMemo = tasks.where { $0.isFixed == true }[index]
+    func updatePin(date : Date){
+        let realmMemo = tasks.where { $0.insertDate == date }.first!
         let realm = try! Realm()
         try! realm.write {
-            realmMemo.isFixed = false
-        }
-        reloadRealm()
-        data.onNext([sectionFixedModel, sectionModel])
-    }
-    
-    func updateUnfixToFix(at index: Int){
-        let realmMemo = tasks.where { $0.isFixed == false }[index]
-        let realm = try! Realm()
-        try! realm.write {
-            realmMemo.isFixed = true
+            realmMemo.isFixed = !realmMemo.isFixed
         }
         reloadRealm()
         data.onNext([sectionFixedModel, sectionModel])
@@ -128,7 +124,9 @@ final class MemoViewModel: MemoStorageType {
     func didUpdateSearchBarText(text: String) {
         let filterList = list.filter {
             $0.title?.contains(text) ?? false || $0.content.contains(text)
-        }
+        }.sorted(by: {
+            $0.insertDate > $1.insertDate
+        })
         let sectionSearchModel = MemoSectionModel(model: "\(filterList.count)개찾음", items: filterList)
         data.onNext([sectionSearchModel])
     }

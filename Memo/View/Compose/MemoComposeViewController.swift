@@ -15,18 +15,19 @@ class MemoComposeViewController: UIViewController {
     var delegate: MemoDelegate?
     private var updateflag: Bool = false
     private var memo: Memo?
-    private var indexPath: IndexPath?
+    private var originalDate: Date?
+    private var editFlag = false
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        textView.delegate = self
         textView.font = .systemFont(ofSize: 17, weight: .bold)
         if updateflag {
             textView.text = "\(memo!.title ?? "")\n\(memo!.content)"
         } else {
             textView.becomeFirstResponder()
         }
-
         setNavigationBar()
     }
     
@@ -34,7 +35,9 @@ class MemoComposeViewController: UIViewController {
         super.viewWillDisappear(animated)
         textView.resignFirstResponder()
         if self.isMovingFromParent {
-            saveText()
+            if editFlag {
+                saveText()
+            }
         }
     }
     
@@ -51,10 +54,10 @@ class MemoComposeViewController: UIViewController {
         self.navigationItem.rightBarButtonItems = [completed, share]
     }
     
-    func updateValue(updateflag: Bool, memo: Memo, indexPath: IndexPath) {
+    func updateValue(updateflag: Bool, memo: Memo, originalDate: Date) {
         self.updateflag = updateflag
         self.memo = memo
-        self.indexPath = indexPath
+        self.originalDate = originalDate
     }
     
     @objc private func didTapCompleteButton(){
@@ -85,17 +88,23 @@ class MemoComposeViewController: UIViewController {
         }
         let memoArray = text.pasringContectText
         if memoArray.count == 1{
-            if let indexPath = indexPath {
-                delegate?.updateMemo(title: nil, content: memoArray[0], date: Date(), at: indexPath)
+            if updateflag {
+                delegate?.updateMemo(title: nil, content: memoArray[0], date: Date(), originalDate: originalDate!)
             } else {
                 delegate?.createMemo(title: nil, content: memoArray[0], date: Date())
             }
         } else {
-            if let indexPath = indexPath {
-                delegate?.updateMemo(title: memoArray[0], content: memoArray[1], date: Date(), at: indexPath)
+            if updateflag {
+                delegate?.updateMemo(title: memoArray[0], content: memoArray[1], date: Date(), originalDate: originalDate!)
             } else {
                 delegate?.createMemo(title: memoArray[0], content: memoArray[1], date: Date())
             }
         }
+    }
+}
+
+extension MemoComposeViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        editFlag = true
     }
 }

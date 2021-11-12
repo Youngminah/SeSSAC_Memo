@@ -16,7 +16,7 @@ protocol MemoStorageType {
     func createMemo(title: String?, content: String, date: Date) -> Observable<UserMemo>
     
     @discardableResult
-    func update(title: String?, content: String, date: Date, at indexPath: IndexPath) -> Observable<UserMemo>
+    func update(title: String?, content: String, date: Date, originalDate: Date) -> Observable<UserMemo>
     
     @discardableResult
     func delete(at indexPath: IndexPath) -> Observable<UserMemo>
