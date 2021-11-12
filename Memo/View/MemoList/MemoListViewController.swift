@@ -21,11 +21,12 @@ class MemoListViewController: UIViewController{
 
     var viewModel = MemoViewModel()
     let disposeBag = DisposeBag()
+    var searchText : String?
     
-    let dataSource: RxTableViewSectionedAnimatedDataSource<MemoSectionModel> = {
+    lazy var dataSource: RxTableViewSectionedAnimatedDataSource<MemoSectionModel> = {
         let ds = RxTableViewSectionedAnimatedDataSource<MemoSectionModel>(configureCell: { (dataSource, tableView, indexPath, memo) -> UITableViewCell in
             let cell = tableView.dequeueReusableCell(withIdentifier: "MemoListCell", for: indexPath) as! MemoListCell
-            cell.setDate(data: memo)
+            cell.setDate(data: memo, text: self.searchText)
             return cell
         }, titleForHeaderInSection: { dataSource, sectionIndex in
             return dataSource[sectionIndex].model
@@ -113,7 +114,7 @@ class MemoListViewController: UIViewController{
             .disposed(by: disposeBag)
     }
     
-    func setupSearchController() {
+    private func setupSearchController() {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.placeholder = "검색"
         searchController.hidesNavigationBarDuringPresentation = false
@@ -168,9 +169,11 @@ extension MemoListViewController: UITableViewDelegate {
 extension MemoListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text, text != "" else {
+            searchText = nil
             self.viewModel.cancelSearchBarText()
             return
         }
+        searchText = text
         self.viewModel.didUpdateSearchBarText(text: text)
     }
 }
