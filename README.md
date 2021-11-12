@@ -13,6 +13,7 @@
 - Storyboard
 - Rxswift
 - Realm
+- 다크모드 대응 (기본 애플 다크모드 대응  사용)
 
 </br>
 </br>
