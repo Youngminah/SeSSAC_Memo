@@ -30,7 +30,6 @@ class MemoListCell: UITableViewCell {
 
 extension Date {
     static func from(date: Date) -> String {
-        let now = Date()
         let formatter = DateFormatter()
         //한국 시간으로 표시
         formatter.locale = Locale(identifier: "ko_kr")
@@ -40,6 +39,6 @@ extension Date {
         formatter.amSymbol = "오전"
         formatter.pmSymbol = "오후"
         
-        return formatter.string(from: now)
+        return formatter.string(from: date)
     }
 }

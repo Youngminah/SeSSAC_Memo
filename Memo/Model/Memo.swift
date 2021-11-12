@@ -30,13 +30,4 @@ struct Memo: Equatable, IdentifiableType {
         self.content = updateContent
         self.insertDate = updateDate
     }
-    
-    init(original: Memo, isFixed: Bool) {
-        self = original
-        self.isFixed = isFixed
-    }
-    
-    mutating func updateIsFixed() {
-        self.isFixed = !isFixed
-    }
 }

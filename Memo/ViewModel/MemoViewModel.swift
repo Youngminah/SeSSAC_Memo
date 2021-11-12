@@ -9,20 +9,18 @@ import UIKit
 import RxSwift
 import RxCocoa
 import RxDataSources
+import RealmSwift
 
 typealias MemoSectionModel = AnimatableSectionModel<String, Memo>
 
 final class MemoViewModel: MemoStorageType {
     
-    private var list: [Memo] = [
-        Memo(title: "여긴 고정된 메모야!!", content: "날아가 사뿐히 이루렴 팽팽한 어둠사이로 여행을", insertDate: Date()),
-        Memo(title: "장 보기", content: "배추 2포기, 고등어, 사탕 3개, 다이소 들려서 생필품 구입하기 \n 그다음뭐하지?", insertDate: Date()),
-        Memo(title: "동해물과 백두산이 마르고 닳도록", content: "", insertDate: Date()),
-        Memo(title: "달이 익어가니 서둘러 젊은 피야 민들레 한송이 들고 사랑이 어지러이", content: "날아가 사뿐히 이루렴 팽팽한 어둠사이로 여행을", insertDate: Date())
-    ]
+    private var list = [Memo]()
     
     // input
     let save = PublishRelay<Void>()
+    
+    private var tasks: Results<UserMemo>!
     
     // output
     //let title: Driver<String>
@@ -32,60 +30,110 @@ final class MemoViewModel: MemoStorageType {
     private lazy var data = BehaviorSubject<[MemoSectionModel]>(value: [sectionFixedModel, sectionModel])
     
     
+    init() {
+        let localRealm = try! Realm()
+        print("Realm is located at:", localRealm.configuration.fileURL!)
+        tasks = localRealm.objects(UserMemo.self).sorted(byKeyPath: "insertDate")
+        tasks.forEach {
+            list.append(Memo(title: $0.title, content: $0.content, insertDate: $0.insertDate, isFixed: $0.isFixed))
+        }
+    }
+    
     var memoList: Observable<[MemoSectionModel]> {
         return data
     }
     
+    var countFixedMemo: Int {
+        return list.filter { $0.isFixed == true }.count
+    }
+    
     @discardableResult
-    func createMemo(title: String?, content: String, date: Date) -> Observable<Memo> {
+    func createMemo(title: String?, content: String, date: Date) -> Observable<UserMemo> {
         let memo = Memo(title: title, content: content, insertDate: date)
-        sectionModel.items.insert(memo, at: 1)
+        let realmMemo = UserMemo(value: ["title": memo.title ?? "", "content": memo.content, "insertDate": memo.insertDate, "isFixed": memo.isFixed])
+        let realm = try! Realm()
+        try! realm.write {
+            realm.add(realmMemo)
+        }
+        reloadRealm()
         data.onNext([sectionFixedModel,sectionModel])
-        return Observable.just(memo)
+        return Observable.just(realmMemo)
     }
     
     @discardableResult
-    func update(memo: Memo, title: String?, content: String, date: Date) -> Observable<Memo> {
-        let updated = Memo(original: memo, updateTitle: title, updateContent: content, updateDate: date)
-
-        if let index = sectionFixedModel.items.firstIndex(where: { $0 == memo }){
-            sectionFixedModel.items.remove(at: index)
-            sectionFixedModel.items.insert(updated, at: index)
+    func update(title: String?, content: String, date: Date, at indexPath: IndexPath) -> Observable<UserMemo> {
+        var realmMemo = UserMemo()
+        if indexPath.section == 0 {
+            realmMemo = tasks.where { $0.isFixed == true }[indexPath.row]
+        } else {
+            realmMemo = tasks.where { $0.isFixed == false }[indexPath.row]
         }
-        
-        if let index = sectionModel.items.firstIndex(where: { $0 == memo }){
-            sectionModel.items.remove(at: index)
-            sectionModel.items.insert(updated, at: index)
+        let realm = try! Realm()
+        try! realm.write {
+            realmMemo.title = title
+            realmMemo.content = content
+            realmMemo.insertDate = date
         }
-        
+        reloadRealm()
         data.onNext([sectionFixedModel, sectionModel])
-        return Observable.just(updated)
+        return Observable.just(realmMemo)
     }
     
     @discardableResult
-    func delete(memo: Memo) -> Observable<Memo> {
-        if let index = sectionModel.items.firstIndex(where: {$0 == memo}){
-            sectionModel.items.remove(at: index)
+    func delete(at indexPath: IndexPath) -> Observable<UserMemo> {
+        var realmMemo = UserMemo()
+        if indexPath.section == 0 {
+            realmMemo = tasks.where { $0.isFixed == true }[indexPath.row]
+        } else {
+            realmMemo = tasks.where { $0.isFixed == false }[indexPath.row]
         }
-        if let index = sectionFixedModel.items.firstIndex(where: {$0 == memo}){
-            sectionFixedModel.items.remove(at: index)
+        let realm = try! Realm()
+        try! realm.write {
+            realm.delete(realmMemo)
         }
+        reloadRealm()
         data.onNext([sectionFixedModel, sectionModel])
-        return Observable.just(memo)
+        return Observable.just(realmMemo)
     }
     
     func updateFixToUnfix(at index: Int){
-        sectionFixedModel.items[index].updateIsFixed()
-        let memo = sectionFixedModel.items[index]
-        sectionFixedModel.items.remove(at: index)
-        sectionModel.items.append(memo)
+        let realmMemo = tasks.where { $0.isFixed == true }[index]
+        let realm = try! Realm()
+        try! realm.write {
+            realmMemo.isFixed = false
+        }
+        reloadRealm()
         data.onNext([sectionFixedModel, sectionModel])
     }
     
     func updateUnfixToFix(at index: Int){
-        sectionModel.items[index].updateIsFixed()
-        sectionFixedModel.items.append(sectionModel.items[index])
-        sectionModel.items.remove(at: index)
+        let realmMemo = tasks.where { $0.isFixed == false }[index]
+        let realm = try! Realm()
+        try! realm.write {
+            realmMemo.isFixed = true
+        }
+        reloadRealm()
+        data.onNext([sectionFixedModel, sectionModel])
+    }
+    
+    func reloadRealm() {
+        list.removeAll()
+        tasks.forEach {
+            list.append(Memo(title: $0.title, content: $0.content, insertDate: $0.insertDate, isFixed: $0.isFixed))
+        }
+        sectionFixedModel = MemoSectionModel(model: "고정된 메모", items: list.filter { $0.isFixed == true })
+        sectionModel = MemoSectionModel(model: "메모", items: list.filter { $0.isFixed == false } )
+    }
+    
+    func didUpdateSearchBarText(text: String) {
+        let filterList = list.filter {
+            $0.title?.contains(text) ?? false || $0.content.contains(text)
+        }
+        let sectionSearchModel = MemoSectionModel(model: "\(filterList.count)개찾음", items: filterList)
+        data.onNext([sectionSearchModel])
+    }
+    
+    func cancelSearchBarText(){
         data.onNext([sectionFixedModel, sectionModel])
     }
 }

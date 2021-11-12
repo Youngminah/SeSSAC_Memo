@@ -9,6 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 import RxDataSources
+import YMLogoAlert
 
 class MemoListViewController: UIViewController{
 
@@ -51,6 +52,7 @@ class MemoListViewController: UIViewController{
                     .disposed(by: disposeBag)
         
         self.viewModel.memoList
+            .distinctUntilChanged()
             .bind(to: tableView.rx.items(dataSource:  self.dataSource))
             .disposed(by: disposeBag)
         
@@ -76,9 +78,9 @@ class MemoListViewController: UIViewController{
                 
                 
         self.tableView.rx
-            .modelDeleted(Memo.self)
+            .itemDeleted
             .subscribe {
-                self.viewModel.delete(memo: $0)
+                self.viewModel.delete(at: $0)
             }
             .disposed(by: disposeBag)
     }
@@ -96,7 +98,11 @@ class MemoListViewController: UIViewController{
 
 extension MemoListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        print("텍스트 입력됨")
+        guard let text = searchController.searchBar.text, text != "" else {
+            self.viewModel.cancelSearchBarText()
+            return
+        }
+        self.viewModel.didUpdateSearchBarText(text: text)
     }
 }
 
@@ -106,16 +112,23 @@ extension MemoListViewController: UITableViewDelegate {
 
         if indexPath.section == 0 {
             shareAction = UIContextualAction(style: .normal,
-                                                 title:  nil ) { [weak self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                                                 title:  nil ) { [unowned self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
                 print("고정해제 \(indexPath.section)")
-                self?.viewModel.updateFixToUnfix(at: indexPath.row)
+                self.viewModel.updateFixToUnfix(at: indexPath.row)
             }
             shareAction.image = UIImage(systemName: "pin.slash.fill")
         } else {
             shareAction = UIContextualAction(style: .normal,
-                                                 title:  nil ) { [weak self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
+                                                 title:  nil ) { [unowned self] (ac:UIContextualAction, view:UIView, success:(Bool) -> Void) in
                 print("고정 \(indexPath.section)")
-                self?.viewModel.updateUnfixToFix(at: indexPath.row)
+                if self.viewModel.countFixedMemo > 4 {
+                    let alert = UIAlertController(title: "에러", message: "최대 5개까지만 고정 가능합니다.", preferredStyle: UIAlertController.Style.alert)
+                    let defaultAction = UIAlertAction(title: "확인", style: .destructive)
+                    alert.addAction(defaultAction)
+                    present(alert,animated: true, completion: nil)
+                    return
+                }
+                self.viewModel.updateUnfixToFix(at: indexPath.row)
             }
             shareAction.image = UIImage(systemName: "pin.fill")
         }

@@ -18,6 +18,7 @@
 		BBAB1EB8273D5BC400780316 /* MemoStorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB1EB7273D5BC400780316 /* MemoStorageType.swift */; };
 		BBAB1EBB273D98CD00780316 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB1EBA273D98CD00780316 /* String+Extension.swift */; };
 		BBAB1EBF273D9AD800780316 /* RxRealm in Frameworks */ = {isa = PBXBuildFile; productRef = BBAB1EBE273D9AD800780316 /* RxRealm */; };
+		BBAB1EC1273DA1CC00780316 /* RealmMemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAB1EC0273DA1CC00780316 /* RealmMemo.swift */; };
 		BBD9E279273A1DCF00EEB84E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E278273A1DCF00EEB84E /* AppDelegate.swift */; };
 		BBD9E27B273A1DCF00EEB84E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD9E27A273A1DCF00EEB84E /* SceneDelegate.swift */; };
 		BBD9E282273A1DD100EEB84E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBD9E281273A1DD100EEB84E /* Assets.xcassets */; };
@@ -37,6 +38,7 @@
 		BBAB1EAB273C1B5800780316 /* MemoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoViewModel.swift; sourceTree = "<group>"; };
 		BBAB1EB7273D5BC400780316 /* MemoStorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoStorageType.swift; sourceTree = "<group>"; };
 		BBAB1EBA273D98CD00780316 /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
+		BBAB1EC0273DA1CC00780316 /* RealmMemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmMemo.swift; sourceTree = "<group>"; };
 		BBD9E275273A1DCF00EEB84E /* Memo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBD9E278273A1DCF00EEB84E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BBD9E27A273A1DCF00EEB84E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				BBD9E29F273A48C300EEB84E /* Memo.swift */,
+				BBAB1EC0273DA1CC00780316 /* RealmMemo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -257,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBD9E2A0273A48C300EEB84E /* Memo.swift in Sources */,
+				BBAB1EC1273DA1CC00780316 /* RealmMemo.swift in Sources */,
 				BBAB1EBB273D98CD00780316 /* String+Extension.swift in Sources */,
 				BBAB1EB8273D5BC400780316 /* MemoStorageType.swift in Sources */,
 				BBD9E2F4273C15F800EEB84E /* MemoListCell.swift in Sources */,
